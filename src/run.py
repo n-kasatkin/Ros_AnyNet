@@ -61,12 +61,41 @@ def preprocess_image(image):
 
 
 # See example http://wiki.ros.org/message_filters#Example_.28Python.29-1
-def callback(imgL, imgR):
-    imgL = preprocess_image(br.imgmsg_to_cv2(imgL))
-    imgR = preprocess_image(br.imgmsg_to_cv2(imgR))
+def callback(imgL, imgR, verbose=True):
+    if verbose:
+        rospy.loginfo('input_msg height  : {}'.format(imgL.height))
+        rospy.loginfo('input_msg width   : {}'.format(imgL.width))
+        rospy.loginfo('input_msg step    : {}'.format(imgL.step))
+        rospy.loginfo('input_msg encoding: {}'.format(imgL.encoding))
+
+    imgL = br.imgmsg_to_cv2(imgL, desired_encoding='rgb8')
+    imgR = br.imgmsg_to_cv2(imgR, desired_encoding='rgb8')
+
+    if verbose:
+        rospy.loginfo('-'*50)
+        rospy.loginfo('output type       : {}'.format(type(imgL)))
+        rospy.loginfo('output dtype      : {}'.format(imgL.dtype))
+        rospy.loginfo('output shape      : {}'.format(imgL.shape))
+
+    # Preprocess
+    imgL = preprocess_image(imgL)
+    imgR = preprocess_image(imgR)
+
+    # Predict disparity
     disparity = model.predict_disparity(imgL, imgR)
+    disparity = disparity.cpu().numpy()[0, :, :]
+
+    # Convert to msg and publish
     msg = br.cv2_to_imgmsg(disparity)
     pub_.publish(msg)
+
+    # cv2.imwrite('output.png', disparity)
+
+    if verbose:
+        rospy.loginfo('-'*50)
+        rospy.loginfo('output type       : {}'.format(type(disparity)))
+        rospy.loginfo('output dtype      : {}'.format(disparity.dtype))
+        rospy.loginfo('output shape      : {}'.format(disparity.shape))
 
 
 if __name__ == "__main__":
@@ -86,7 +115,7 @@ if __name__ == "__main__":
     pub_ = rospy.Publisher(args.output_topic, Image, queue_size=1)
 
     # Syncronization
-    ts = message_filters.TimeSynchronizer([left_img_sub_, right_img_sub_], 10)
+    ts = message_filters.ApproximateTimeSynchronizer([left_img_sub_, right_img_sub_], 1, 1)
     ts.registerCallback(callback)
 
     rospy.loginfo("[+] AnyNet ROS-node has started!")   

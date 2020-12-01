@@ -1,6 +1,6 @@
 # ROS PARAMETERS
-LEFT_IMAGES="left_images_topic"
-RIGHT_IMAGES="right_images_topic"
+LEFT_IMAGES="/left/image_raw"
+RIGHT_IMAGES="/right/image_raw"
 OUPUT_TOPIC="anynet_disparities"
 
 # DATA PARAMETERS
