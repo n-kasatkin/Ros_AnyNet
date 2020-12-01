@@ -57,7 +57,6 @@ class feature_extraction_conv(nn.Module):
         outC = 2*nC
         block0 = self._make_block(inC, outC, nblock)
         self.block0 = nn.Sequential(downsample_conv, block0)
-        # self.block0 = nn.Sequential(block0)
 
         nC = 2*nC
         self.blocks = []
@@ -91,8 +90,6 @@ class feature_extraction_conv(nn.Module):
 
     def forward(self, x):
         downs = [self.block0(x)]
-        # print(downs[0].shape)
-        # downs = [x]
         for i in range(2):
             downs.append(self.blocks[i](downs[-1]))
         downs = list(reversed(downs))

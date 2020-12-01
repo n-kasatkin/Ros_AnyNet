@@ -25,10 +25,6 @@ class AnyNet(nn.Module):
 
         if self.with_spn:
             try:
-                # from .spn.modules.gaterecurrent2dnoind import GateRecurrent2dnoind
-                # os.chdir('./AnyNet/models')
-                # print(os.getcwd())
-                # sys.path.append('./AnyNet/models')
                 from .spn_t1.modules.gaterecurrent2dnoind import GateRecurrent2dnoind
             except:
                 print('Cannot load spn model')

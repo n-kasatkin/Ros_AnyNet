@@ -12,9 +12,11 @@ INPUT_H=576
 CHECKPOINT="./AnyNet/checkpoint/kitti2012_ck/checkpoint.tar"
 DATATYPE=2012
 
+
 python3 run.py ${LEFT_IMAGES} ${RIGHT_IMAGES} \
     --output_topic ${OUPUT_TOPIC} \
     --pretrained ${CHECKPOINT} \
     --datatype ${DATATYPE} \
     --input_w ${INPUT_W} \
-    --input_h ${INPUT_H}
+    --input_h ${INPUT_H} \
+    --with_spn
