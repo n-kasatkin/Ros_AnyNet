@@ -1,7 +1,6 @@
 import os
 import sys
 sys.path.append('./AnyNet')
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 import time
 import json 
@@ -61,7 +60,10 @@ def preprocess_image(image):
 
 
 # See example http://wiki.ros.org/message_filters#Example_.28Python.29-1
-def callback(imgL, imgR, verbose=True):
+def callback(imgL, imgR, verbose=False, quiet=False):
+    if not quiet:
+        rospy.loginfo(f'Got pair of images.\nLeft image info: {imgL.header}')
+
     if verbose:
         rospy.loginfo('input_msg height  : {}'.format(imgL.height))
         rospy.loginfo('input_msg width   : {}'.format(imgL.width))
@@ -70,12 +72,6 @@ def callback(imgL, imgR, verbose=True):
 
     imgL = br.imgmsg_to_cv2(imgL, desired_encoding='rgb8')
     imgR = br.imgmsg_to_cv2(imgR, desired_encoding='rgb8')
-
-    if verbose:
-        rospy.loginfo('-'*50)
-        rospy.loginfo('output type       : {}'.format(type(imgL)))
-        rospy.loginfo('output dtype      : {}'.format(imgL.dtype))
-        rospy.loginfo('output shape      : {}'.format(imgL.shape))
 
     # Preprocess
     imgL = preprocess_image(imgL)

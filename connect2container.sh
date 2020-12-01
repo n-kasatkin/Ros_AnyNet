@@ -1,2 +1,2 @@
-CONTAINER_ID="d1a6790455bb"
+CONTAINER_ID=""
 docker exec -it ${CONTAINER_ID} bash
