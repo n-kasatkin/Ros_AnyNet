@@ -1,7 +1,7 @@
 # ROS PARAMETERS
 LEFT_IMAGES="/left/image_raw"
 RIGHT_IMAGES="/right/image_raw"
-OUPUT_TOPIC="anynet_disparities"
+OUPUT_TOPIC="/anynet_disparities"
 
 # DATA PARAMETERS
 INPUT_W=1200
