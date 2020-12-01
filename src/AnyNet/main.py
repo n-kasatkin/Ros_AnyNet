@@ -79,12 +79,12 @@ class AnyNetModel:
                 print("=> no pretrained model found at '{}'")
         cudnn.benchmark = True
 
-    def predict_disparity(self, imgL, imgR, stage=4):
+    def predict_disparity(self, imgL, imgR, stage=-1):
         imgL = imgL.float().cuda().unsqueeze(0)
         imgR = imgR.float().cuda().unsqueeze(0)
 
         with torch.no_grad():
             outputs = self.model(imgL, imgR)
-            output = torch.squeeze(outputs[stage - 1], 1)
+            output = torch.squeeze(outputs[stage], 1)
 
         return output

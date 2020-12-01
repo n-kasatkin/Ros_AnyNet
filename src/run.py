@@ -8,17 +8,21 @@ import json
 import yaml
 import argparse
 import numpy as np
+import cv2
 
 import torch
 
 import rospy
 import ros_numpy
+from cv_bridge import CvBridge
 
 import struct
+import message_filters
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image
 
 from AnyNet.main import AnyNetModel, add_model_specific_args
+from AnyNet.dataloader import preprocess
 
 
 def add_ros_specific_args(parent_parser):
@@ -30,17 +34,39 @@ def add_ros_specific_args(parent_parser):
     return parser
 
 
+def add_data_specific_args(parent_parser):
+    parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
+    parser.add_argument('--input_w', type=int,
+        help="Image shapes should be divisible by 16 due to model architecture")
+    parser.add_argument('--input_h', type=int,
+        help="Image shapes should be divisible by 16 due to model architecture")
+    return parser
+
+
 def config_args():
     parser = argparse.ArgumentParser()
 
     parser = add_ros_specific_args(parser)
+    parser = add_data_specific_args(parser)
     parser = add_model_specific_args(parser)
 
     return parser.parse_args()
 
 
-def sub_callback(data):
-    rospy.loginfo("Got message %s", data.data)
+def preprocess_image(image):
+    img = cv2.resize(image, (args.input_w, args.input_h))
+    processed = preprocess.get_transform(augment=False)
+    img = processed(img)
+    return img
+
+
+# See example http://wiki.ros.org/message_filters#Example_.28Python.29-1
+def callback(imgL, imgR):
+    imgL = preprocess_image(br.imgmsg_to_cv2(imgL))
+    imgR = preprocess_image(br.imgmsg_to_cv2(imgR))
+    disparity = model.predict_disparity(imgL, imgR)
+    msg = br.cv2_to_imgmsg(disparity)
+    pub_.publish(msg)
 
 
 if __name__ == "__main__":
@@ -53,9 +79,15 @@ if __name__ == "__main__":
     # Init AnyNet ros node
     rospy.init_node('AnyNet_ros_node')
 
-    left_img_sub_ = rospy.Subscriber(args.left_images, Image, sub_callback, queue_size=1)
-    right_img_sub_ = rospy.Subscriber(args.right_images, Image, sub_callback, queue_size=1)
+    br = CvBridge()
+
+    left_img_sub_ = message_filters.Subscriber(args.left_images, Image)
+    right_img_sub_ = message_filters.Subscriber(args.right_images, Image)
     pub_ = rospy.Publisher("anynet_disparities", Image, queue_size=1)
-    
+
+    # Syncronization
+    ts = message_filters.TimeSynchronizer([left_img_sub_, right_img_sub_], 10)
+    ts.registerCallback(callback)
+
     rospy.loginfo("[+] AnyNet ROS-node has started!")   
-    # rospy.spin()
+    rospy.spin()

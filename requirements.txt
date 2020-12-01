@@ -1,3 +1,4 @@
 tqdm
 pyyaml
 argparse
+opencv

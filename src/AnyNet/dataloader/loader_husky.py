@@ -15,12 +15,12 @@ IMG_EXTENSIONS = [
 ]
 
 # Husky
-# CROP_H = 576
-# CROP_W = 1200
+CROP_H = 576
+CROP_W = 1200
 
-# KITTI
-CROP_H = 368
-CROP_W = 1232
+# # KITTI
+# CROP_H = 368
+# CROP_W = 1232
 
 
 def analyze(img):
@@ -38,20 +38,13 @@ def default_loader(path):
 
 def disparity_loader(path):
     return cv2.imread(path[:-4] + '.exr', cv2.IMREAD_UNCHANGED)
-    # return Image.open(path)
 
 
 class myImageFloder_testing(data.Dataset):
     def __init__(self, left, right, loader=default_loader):
- 
         self.left = left
         self.right = right
         self.loader = loader
-
-        self.preprocess = transforms.Compose([transforms.ToPILImage(),
-                                              transforms.Grayscale(num_output_channels=1),
-                                              transforms.ToTensor(), # ])
-                                              transforms.Lambda(lambda img: torch.cat([img, img], 0))])
 
     def __getitem__(self, index):
         left  = self.left[index]
@@ -66,9 +59,6 @@ class myImageFloder_testing(data.Dataset):
         processed = preprocess.get_transform(augment=False)  
         left_img = processed(left_img)
         right_img = processed(right_img)
-
-        # left_img = self.preprocess(left_img)
-        # right_img = self.preprocess(right_img)
 
         return left_img, right_img
 
@@ -120,10 +110,8 @@ class myImageFloder(data.Dataset):
            right_img = right_img.resize((CROP_W, CROP_H))
            w1, h1 = left_img.size
 
-           # dataL = dataL.resize((CROP_W, CROP_H))
            dataL = np.ascontiguousarray(dataL,dtype=np.float32)/256
            dataL = cv2.resize(dataL, (CROP_W, CROP_H))
-           # dataL = np.clip(dataL, 0., 2**16) / 256.
 
            processed = preprocess.get_transform(augment=False)  
            left_img       = processed(left_img)

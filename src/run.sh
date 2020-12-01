@@ -3,12 +3,18 @@ LEFT_IMAGES="left_images_topic"
 RIGHT_IMAGES="right_images_topic"
 OUPUT_TOPIC="anynet_disparities"
 
+# DATA PARAMETERS
+INPUT_W=1200
+INPUT_H=576
+
 # MODEL PARAMETERS
 # SEE CODE FOR DETAILS
-CHECKPOINT="/home/kasatkin/Projects/AnyNet/checkpoint/kitti2012_ck/checkpoint.tar"
+CHECKPOINT="./AnyNet/checkpoint/kitti2012_ck/checkpoint.tar"
 DATATYPE=2012
 
 python3 run.py ${LEFT_IMAGES} ${RIGHT_IMAGES} \
     --output_topic ${OUPUT_TOPIC} \
     --pretrained ${CHECKPOINT} \
-    --datatype ${DATATYPE}
+    --datatype ${DATATYPE} \
+    --input_w ${INPUT_W} \
+    --input_h ${INPUT_H}
