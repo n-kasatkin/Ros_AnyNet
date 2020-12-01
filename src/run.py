@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     left_img_sub_ = message_filters.Subscriber(args.left_images, Image)
     right_img_sub_ = message_filters.Subscriber(args.right_images, Image)
-    pub_ = rospy.Publisher("anynet_disparities", Image, queue_size=1)
+    pub_ = rospy.Publisher(args.output_topic, Image, queue_size=1)
 
     # Syncronization
     ts = message_filters.TimeSynchronizer([left_img_sub_, right_img_sub_], 10)
