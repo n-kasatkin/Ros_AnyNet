@@ -2,7 +2,7 @@
 This is ros realization of [AnyNet model](https://github.com/mileyan/AnyNet).
 
 # Installation 
-1. `up_contatiner.sh` to run docker
+1. `up_container.sh` to run docker
 2. `docker ps` to see what ID this container has
 3. change ID in `connect2contatiner.sh`
 4. `connect2contatiner.sh` to connect to this container
